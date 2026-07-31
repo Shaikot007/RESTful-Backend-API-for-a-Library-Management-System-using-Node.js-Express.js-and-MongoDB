@@ -10,8 +10,8 @@ const registerUser = async (req, res) => {
 		// Check if email already exists
 		const existingUser = await User.findOne({ email });
 		if (existingUser) {
-			return res.status(400).json({ 
-				message: "Email already exists!" 
+			return res.status(400).json({
+				message: "Email already exists!"
 			});
 		};
 
@@ -39,10 +39,10 @@ const registerUser = async (req, res) => {
 				createdAt: newUser.createdAt
 			}
 		});
-	} 
+	}
 	catch (error) {
-		res.status(500).json({ 
-			error: error.message 
+		res.status(500).json({
+			error: error.message
 		});
 	};
 };
@@ -55,16 +55,16 @@ const loginUser = async (req, res) => {
 		// Check user existence
 		const user = await User.findOne({ email });
 		if (!user) {
-			return res.status(400).json({ 
-				message: "Invalid email or password!" 
+			return res.status(400).json({
+				message: "Invalid email or password!"
 			});
 		};
 
 		// Verify password
 		const isMatch = await bcrypt.compare(password, user.password);
 		if (!isMatch) {
-			return res.status(400).json({ 
-				message: "Invalid email or password!" 
+			return res.status(400).json({
+				message: "Invalid email or password!"
 			});
 		};
 
@@ -85,10 +85,10 @@ const loginUser = async (req, res) => {
 				role: user.role
 			}
 		});
-	} 
+	}
 	catch (error) {
-		res.status(500).json({ 
-			error: error.message 
+		res.status(500).json({
+			error: error.message
 		});
 	};
 };

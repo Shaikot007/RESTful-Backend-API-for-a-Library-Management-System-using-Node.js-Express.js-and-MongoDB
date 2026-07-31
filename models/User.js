@@ -6,6 +6,6 @@ const userSchema = new mongoose.Schema({
 	password: { type: String, required: true },
 	phoneNumber: { type: String, required: true },
 	role: { type: String, enum: ["Admin", "User"], default: "User" }
-}, { timestamps: true }); // Created At এবং Updated At অটোমেটিক তৈরি হবে
+}, { timestamps: true }); // "Created At" and "Updated At" will be generated automatically.
 
 export default mongoose.model("User", userSchema);
