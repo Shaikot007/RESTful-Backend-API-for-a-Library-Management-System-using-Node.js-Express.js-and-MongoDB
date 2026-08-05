@@ -10,7 +10,7 @@ router.get("/books", authMiddleware, bookController.getAllBooks);
 router.get("/books/:id", authMiddleware, bookController.getBookById);
 router.put("/books/:id", authMiddleware, bookController.updateBook);
 router.delete("/books/:id", authMiddleware, bookController.deleteBook);
-// router.post("/books/borrow/:id", authMiddleware, borrowBook);
+router.post("/books/borrow", authMiddleware, bookController.borrowBook);
 // router.get("/profile", authMiddleware, getProfile);
 
 export default router;

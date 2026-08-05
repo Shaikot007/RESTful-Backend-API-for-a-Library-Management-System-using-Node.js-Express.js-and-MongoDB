@@ -1,4 +1,5 @@
 import Book from "../models/Book.js";
+import Borrow from "../models/Borrow.js";
 
 // Create a new book
 const createBook = async (req, res) => {
@@ -84,6 +85,7 @@ const getBookById = (req, res) => {
 	res.status(200).json(book);
 };
 
+// Update Book
 const updateBook = async (req, res) => {
 	try {
 		const book = await Book.findById(req.params.id);
@@ -107,45 +109,90 @@ const updateBook = async (req, res) => {
 		);
 
 		res.status(200).json(updatedBook);
-	} 
+	}
 	catch (err) {
-		res.status(500).json({ 
-			error: err.message 
+		res.status(500).json({
+			error: err.message
 		});
 	};
 };
 
+// Delete Book
 const deleteBook = async (req, res) => {
-  try {
-    const bookId = req.params.id;
-    const book = await Book.findById(bookId);
+	try {
+		const bookId = req.params.id;
+		const book = await Book.findById(bookId);
 
-    if (!book) {
-      return res.status(404).json({ message: "Book not found" });
-    };
+		if (!book) {
+			return res.status(404).json({ message: "Book not found" });
+		};
 
-    // Check if user is Admin or Book Owner
-    const isOwner = book.owner.toString() === req.user.id;
-    const isAdmin = req.user.role === "admin";
+		// Check if user is Admin or Book Owner
+		const isOwner = book.owner.toString() === req.user.id;
+		const isAdmin = req.user.role === "admin";
 
-    if (!isOwner && !isAdmin) {
-      return res.status(403).json({ message: "Access denied. You cannot delete this book." });
-    };
+		if (!isOwner && !isAdmin) {
+			return res.status(403).json({ message: "Access denied. You cannot delete this book." });
+		};
 
-    await Book.findByIdAndDelete(bookId);
-    return res.status(200).json({ message: "Book deleted successfully" });
-  } 
+		await Book.findByIdAndDelete(bookId);
+		return res.status(200).json({ message: "Book deleted successfully" });
+	}
 	catch (error) {
-    return res.status(500).json({ 
-			message: "Server error", 
-			error: error.message 
+		return res.status(500).json({
+			message: "Server error",
+			error: error.message
 		});
-  }
+	}
 };
 
-// const borrowBook = (req, res) => {
-// 	res.json({ message: `Book ${req.params.id} borrowed successfully` });
-// };
+// Borrow Book
+const borrowBook = async (req, res) => {
+	try {
+		const { userId, bookId } = req.body;
+
+		// Find the book
+		const book = await Book.findById(bookId);
+		if (!book) {
+			return res.status(404).json({ 
+				error: "Book not found" 
+			});
+		};
+
+		// Check if available copies are 0
+		if (book.availableCopies <= 0) {
+			return res.status(400).json({ 
+				error: "Book not available for borrowing" 
+			});
+		};
+
+		// Decrease available copies by 1
+		book.availableCopies -= 1;
+		await book.save();
+
+		// Create borrow record
+		const newBorrow = new Borrow({
+			userId,
+			bookId,
+			borrowDate: new Date(),
+			status: "Borrowed"
+		});
+
+		await newBorrow.save();
+
+		res.status(201).json({
+			message: "Borrow successful",
+			data: newBorrow
+		});
+	} 
+	catch (err) {
+		res.status(500).json({ 
+			error: "Server error", 
+			details: err.message 
+		});
+	}
+};
+
 
 // const getProfile = (req, res) => {
 // 	res.json({ message: "User profile fetched", user: req.user });
@@ -157,6 +204,6 @@ export default {
 	getBookById,
 	updateBook,
 	deleteBook,
-	// borrowBook,
+	borrowBook,
 	// getProfile
 };
