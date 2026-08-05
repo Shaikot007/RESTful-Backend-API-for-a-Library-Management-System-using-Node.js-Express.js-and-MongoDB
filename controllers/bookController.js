@@ -154,15 +154,15 @@ const borrowBook = async (req, res) => {
 		// Find the book
 		const book = await Book.findById(bookId);
 		if (!book) {
-			return res.status(404).json({ 
-				error: "Book not found" 
+			return res.status(404).json({
+				error: "Book not found"
 			});
 		};
 
 		// Check if available copies are 0
 		if (book.availableCopies <= 0) {
-			return res.status(400).json({ 
-				error: "Book not available for borrowing" 
+			return res.status(400).json({
+				error: "Book not available for borrowing"
 			});
 		};
 
@@ -184,15 +184,53 @@ const borrowBook = async (req, res) => {
 			message: "Borrow successful",
 			data: newBorrow
 		});
-	} 
+	}
 	catch (err) {
-		res.status(500).json({ 
-			error: "Server error", 
-			details: err.message 
+		res.status(500).json({
+			error: "Server error",
+			details: err.message
 		});
 	}
 };
 
+// Return a book
+const returnBook = async (req, res) => {
+	try {
+		const borrowId = req.params.id;
+
+		const borrowRecord = await Borrow.findById(borrowId);
+		if (!borrowRecord) return res.status(404).json({
+			error: "Borrow record not found"
+		});
+
+		if (borrowRecord.status === "returned") {
+			return res.status(400).json({
+				error: "Book is already returned"
+			});
+		};
+
+		// Update status
+		borrowRecord.status = "returned";
+		await borrowRecord.save();
+
+		// Increase available copies by 1
+		const book = await Book.findById(borrowRecord.bookId);
+		if (book) {
+			book.availableCopies += 1;
+			await book.save();
+		};
+
+		res.status(200).json({
+			message: "Book returned successfully", 
+			borrowRecord
+		});
+	}
+	catch (err) {
+		res.status(500).json({
+			error: err.message
+		});
+	}
+};
 
 // const getProfile = (req, res) => {
 // 	res.json({ message: "User profile fetched", user: req.user });
@@ -205,5 +243,6 @@ export default {
 	updateBook,
 	deleteBook,
 	borrowBook,
+	returnBook,
 	// getProfile
 };
