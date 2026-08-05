@@ -12,6 +12,6 @@ router.put("/books/:id", authMiddleware, bookController.updateBook);
 router.delete("/books/:id", authMiddleware, bookController.deleteBook);
 router.post("/books/borrow", authMiddleware, bookController.borrowBook);
 router.put("/borrow/:id/return", authMiddleware, bookController.returnBook);
-// router.get("/profile", authMiddleware, getProfile);
+router.get("/users/profile", authMiddleware, bookController.getProfile);
 
 export default router;

@@ -1,3 +1,4 @@
+import User from "../models/User.js";
 import Book from "../models/Book.js";
 import Borrow from "../models/Borrow.js";
 
@@ -221,7 +222,7 @@ const returnBook = async (req, res) => {
 		};
 
 		res.status(200).json({
-			message: "Book returned successfully", 
+			message: "Book returned successfully",
 			borrowRecord
 		});
 	}
@@ -232,9 +233,29 @@ const returnBook = async (req, res) => {
 	}
 };
 
-// const getProfile = (req, res) => {
-// 	res.json({ message: "User profile fetched", user: req.user });
-// };
+const getProfile = async (req, res) => {
+	try {
+		// req.user.id comes from the decoded token in authMiddleware
+		const user = await User.findById(req.user.id).select('-password');
+
+		if (!user) {
+			return res.status(404).json({
+				message: "User not found"
+			});
+		};
+
+		res.status(200).json({
+			success: true,
+			data: user,
+		});
+	}
+	catch (error) {
+		console.error(error.message);
+		res.status(500).json({
+			message: "Server Error"
+		});
+	}
+};
 
 export default {
 	createBook,
@@ -244,5 +265,5 @@ export default {
 	deleteBook,
 	borrowBook,
 	returnBook,
-	// getProfile
+	getProfile
 };
