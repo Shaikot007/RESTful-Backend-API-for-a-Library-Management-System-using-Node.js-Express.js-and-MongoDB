@@ -25,37 +25,66 @@ const getProfile = async (req, res) => {
 };
 
 const updateProfile = async (req, res) => {
-  try {
-    const userId = req.user.id; // From auth middleware
-    const { fullName, phoneNumber } = req.body;
+	try {
+		const userId = req.user.id; // From auth middleware
+		const { fullName, phoneNumber } = req.body;
 
-    // Find user and update fields
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { fullName, phoneNumber },
-      { new: true, runValidators: true }
-    ).select('-password');
+		// Find user and update fields
+		const updatedUser = await User.findByIdAndUpdate(
+			userId,
+			{ fullName, phoneNumber },
+			{ new: true, runValidators: true }
+		).select('-password');
 
-    if (!updatedUser) {
-      return res.status(404).json({ 
-				message: "User not found" 
+		if (!updatedUser) {
+			return res.status(404).json({
+				message: "User not found"
 			});
-    };
+		};
 
-    res.status(200).json({
-      message: "Profile updated successfully",
-      user: updatedUser,
-    });
-  } 
-	catch (error) {
-    res.status(500).json({ 
-			message: "Server error", 
-			error: error.message 
+		res.status(200).json({
+			message: "Profile updated successfully",
+			user: updatedUser,
 		});
-  }
+	}
+	catch (error) {
+		res.status(500).json({
+			message: "Server error",
+			error: error.message
+		});
+	}
+};
+
+const getBorrowedBooks = async (req, res) => {
+	try {
+		// Assume user ID comes from auth middleware (req.user.id) or query/params
+		const userId = req.user?.id || req.params.userId;
+
+		const user = await User.findById(userId).populate("borrowedBooks");
+
+		if (!user) {
+			return res.status(404).json({
+				success: false,
+				message: "User not found"
+			});
+		};
+
+		res.status(200).json({
+			success: true,
+			count: user.borrowedBooks.length,
+			data: user.borrowedBooks
+		});
+	}
+	catch (error) {
+		res.status(500).json({
+			success: false,
+			message: error.message
+		});
+	}
 };
 
 export default {
 	getProfile,
-	updateProfile
+	updateProfile,
+	getBorrowedBooks
 };

@@ -5,5 +5,6 @@ import userController from "../controllers/userController.js";
 
 router.get("/profile", authMiddleware, userController.getProfile);
 router.put("/profile", authMiddleware, userController.updateProfile);
+router.get("/borrowed-books", userController.getBorrowedBooks);
 
 export default router;

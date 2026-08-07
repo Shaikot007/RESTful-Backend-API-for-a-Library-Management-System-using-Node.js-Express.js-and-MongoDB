@@ -5,7 +5,8 @@ const userSchema = new mongoose.Schema({
 	email: { type: String, required: true, unique: true, lowercase: true },
 	password: { type: String, required: true },
 	phoneNumber: { type: String, required: true },
-	role: { type: String, enum: ["Admin", "User"], default: "User" }
+	role: { type: String, enum: ["Admin", "User"], default: "User" },
+	borrowedBooks: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Book' }]
 }, { timestamps: true }); // "Created At" and "Updated At" will be generated automatically.
 
 export default mongoose.model("User", userSchema);
